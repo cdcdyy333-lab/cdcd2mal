@@ -1,0 +1,545 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ช่วยแก้เน็ต | คู่มือแก้ปัญหาอินเทอร์เน็ตบนคอมพิวเตอร์</title>
+<style>
+:root{--blue:#1e88e5;--blue-dark:#1565c0;--sky:#e3f2fd;--white:#fff;--text:#22303f;--muted:#5f6b7a;--card:#ffffff;--border:#d8e6f5}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI","Noto Sans Thai",Tahoma,sans-serif;background:#f3f8fd;color:var(--text)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--blue-dark);color:#fff;padding:20px 14px;position:sticky;top:0;height:100vh}
+.brand{font-weight:800;font-size:22px;margin-bottom:4px}
+.brand small{display:block;font-weight:400;font-size:12px;opacity:.85}
+.sidebar nav{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+.sidebar button{all:unset;cursor:pointer;padding:11px 13px;border-radius:12px;font-size:15px;display:block}
+.sidebar button:hover,.sidebar button.active{background:rgba(255,255,255,.18)}
+main{flex:1;padding:22px;max-width:1150px;margin:auto}
+.topbar{display:flex;gap:10px;align-items:center;background:var(--white);padding:10px;border-radius:16px;box-shadow:0 2px 10px rgba(30,100,160,.08);margin-bottom:20px}
+.topbar input{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:15px}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-size:15px;cursor:pointer;background:var(--blue);color:#fff}
+.btn.secondary{background:#eef6ff;color:var(--blue-dark)}
+.hero{background:linear-gradient(120deg,#1e88e5,#42a5f5);color:#fff;border-radius:22px;padding:28px;margin-bottom:20px}
+.hero h1{margin:0 0 8px;font-size:30px}
+.hero p{margin:0;opacity:.95}
+.banner{margin-top:16px;background:rgba(255,255,255,.16);border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center}
+.banner .icon{font-size:38px}
+.section-title{font-size:21px;margin:24px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 2px 8px rgba(30,100,160,.06)}
+.card .pic{height:110px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:44px;background:linear-gradient(135deg,#e3f2fd,#bbdefb);margin-bottom:12px}
+.card h3{margin:4px 0 6px;font-size:17px}
+.card p{margin:0 0 8px;color:var(--muted);font-size:14px}
+.tag{display:inline-block;background:var(--sky);color:var(--blue-dark);font-size:12px;padding:4px 9px;border-radius:999px;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{background:#fff;border:1.5px solid var(--border);padding:9px 13px;border-radius:999px;cursor:pointer;font-size:14px}
+.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.detail,.panel{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:16px}
+.detail h2{margin-top:0;color:var(--blue-dark)}
+ol li,.detail ul li{margin-bottom:7px;line-height:1.55}
+code{background:#eef4fb;padding:2px 6px;border-radius:6px;font-size:14px}
+.note{background:#fff8e1;border-left:5px solid #fbc02d;padding:10px 14px;border-radius:8px;margin:12px 0}
+.ref a{color:var(--blue-dark)}
+.back{margin-bottom:14px}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+footer{color:var(--muted);font-size:13px;padding:20px 0}
+@media(max-width:820px){.layout{flex-direction:column}.sidebar{width:100%;height:auto;position:static}.sidebar nav{flex-direction:row;overflow:auto}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<div class="brand">ช่วยแก้เน็ต<small>คู่มือแก้ปัญหาอินเทอร์เน็ตบนคอมพิวเตอร์</small></div>
+<nav>
+<button data-page="home" class="active">🏠 หน้าหลัก</button>
+<button data-page="categories">🗂️ หมวดหมู่ปัญหา</button>
+<button data-page="search">🔍 ค้นหาปัญหา</button>
+<button data-page="guide">🛠️ วิธีแก้ไข</button>
+<button data-page="about">ℹ️ เกี่ยวกับเว็บไซต์</button>
+</nav>
+</aside>
+
+<main>
+<div class="topbar">
+<input id="searchBox" placeholder="ค้นหาปัญหา เช่น Wi-Fi, DNS, สาย LAN, VPN" aria-label="ค้นหาปัญหา">
+<button class="btn" onclick="doSearch()">ค้นหา</button>
+</div>
+<div id="app"></div>
+<footer>เว็บไซต์นี้เป็นคู่มือการแก้ปัญหาเบื้องต้น ไม่ควรรีเซ็ตเราเตอร์เป็นค่าโรงงานหรือปิดโปรแกรมป้องกันไวรัสโดยไม่จำเป็น</footer>
+</main>
+</div>
+
+<script>
+const categories=[
+{id:"wifi",name:"ปัญหา Wi-Fi",icon:"📶"},
+{id:"lan",name:"ปัญหาสาย LAN",icon:"🔌"},
+{id:"slow",name:"ปัญหาอินเทอร์เน็ตช้า",icon:"🐢"},
+{id:"no-internet",name:"เชื่อมต่ออินเทอร์เน็ตไม่ได้",icon:"🚫"},
+{id:"drop",name:"สัญญาณหลุดบ่อย",icon:"📉"},
+{id:"dns",name:"ปัญหา DNS",icon:"🌐"},
+{id:"ip",name:"ปัญหา IP Address",icon:"🔢"},
+{id:"router",name:"เราเตอร์และโมเด็ม",icon:"📡"},
+{id:"windows",name:"Windows และการตั้งค่าเครือข่าย",icon:"🪟"},
+{id:"browser",name:"เบราว์เซอร์และการเข้าเว็บไซต์",icon:"🖥️"},
+{id:"security",name:"VPN, Proxy, Firewall และซอฟต์แวร์",icon:"🛡️"},
+{id:"other",name:"ปัญหาอื่น ๆ",icon:"❓"}
+];
+
+const P=[
+{id:"W01",title:"คอมพิวเตอร์เชื่อมต่อ Wi-Fi ไม่ได้",cat:"wifi",icon:"📶",keywords:"wifi เชื่อมต่อไม่ได้ รหัสผ่าน ตัดการเชื่อมต่อ",
+symptoms:"เลือก Wi-Fi แล้วเชื่อมต่อไม่สำเร็จ หรือเชื่อมต่อแล้วหลุดทันที",
+causes:["Wi-Fi หรือโหมดเครื่องบินปิดอยู่","รหัสผ่านไม่ถูกต้อง","การเชื่อมต่อเดิมเสียหาย","ไดรเวอร์หรือบริการ WLAN มีปัญหา"],
+steps:["ตรวจว่าอุปกรณ์อื่นใช้ Wi-Fi เดียวกันได้หรือไม่","เปิด Settings > Network & internet แล้วตรวจว่า Wi-Fi เปิดและ Airplane mode ปิด","ลืมเครือข่ายเดิม: Wi-Fi > Manage known networks > เลือกชื่อ Wi-Fi > Forget แล้วเชื่อมต่อใหม่","ตรวจรหัสผ่าน Wi-Fi อีกครั้ง โดยเฉพาะตัวพิมพ์ใหญ่-เล็ก","รีสตาร์ตคอมพิวเตอร์และเราเตอร์","เปิด Command Prompt แบบ Administrator แล้วรัน: netsh winsock reset, netsh int ip reset, ipconfig /release, ipconfig /renew, ipconfig /flushdns ตามลำดับ แล้วรีสตาร์ตเครื่อง"],
+result:"คอมพิวเตอร์เชื่อมต่อ Wi-Fi ได้และสถานะแสดง Connected",
+checks:["ลองเชื่อมต่อ Wi-Fi อื่น เพื่อแยกว่าปัญหาอยู่ที่เครื่องหรือเครือข่าย","ตรวจ Device Manager > Network adapters ว่าอะแดปเตอร์ Wi-Fi ไม่มีสัญญาณเตือน"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อ Wi-Fi ใน Windows","https://support.microsoft.com/th-th/windows/fix-wi-fi-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W02",title:"ไม่พบชื่อเครือข่าย Wi-Fi",cat:"wifi",icon:"📡",keywords:"ไม่เห็น wifi ไม่พบเครือข่าย สัญญาณหาย",
+symptoms:"รายชื่อ Wi-Fi ไม่ปรากฏ หรือมองเห็นเครือข่ายอื่นแต่ไม่เห็นเครือข่ายของตนเอง",
+causes:["Wi-Fi ถูกปิดหรือโหมดเครื่องบินเปิดอยู่","อยู่ไกลจากเราเตอร์เกินไป","เราเตอร์ปิดการแพร่กระจายชื่อเครือข่าย (SSID)","อะแดปเตอร์ Wi-Fi หรือไดรเวอร์มีปัญหา"],
+steps:["ตรวจว่า Wi-Fi เปิดและ Airplane mode ปิดใน Settings > Network & internet","เดินเข้าใกล้เราเตอร์แล้วรีเฟรชรายชื่อเครือข่าย","รีสตาร์ตเราเตอร์และคอมพิวเตอร์","เปิด Device Manager > Network adapters ตรวจว่า Wireless adapter ไม่ถูกปิดใช้งาน","หากอะแดปเตอร์มีปัญหา ให้อัปเดตหรือติดตั้งไดรเวอร์ใหม่จากเว็บไซต์ผู้ผลิตคอมพิวเตอร์"],
+result:"ชื่อ Wi-Fi ปรากฏในรายการเครือข่ายและเชื่อมต่อได้",
+checks:["ลองมองหา Wi-Fi จากโทรศัพท์ เพื่อยืนยันว่าเราเตอร์แพร่สัญญาณอยู่","หากไม่เห็นทั้ง 2.4 GHz และ 5 GHz ให้ตรวจการตั้งค่า SSID ของเราเตอร์"],
+refs:[["Microsoft Support: แก้ไขปัญหา Wi-Fi ใน Windows","https://support.microsoft.com/th-th/windows/fix-wi-fi-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W03",title:"ใส่รหัสผ่าน Wi-Fi แล้วเชื่อมต่อไม่ได้",cat:"wifi",icon:"🔑",keywords:"รหัสผ่าน wifi ผิด เชื่อมต่อไม่ได้",
+symptoms:"ป้อนรหัสผ่านแล้วขึ้นว่ารหัสไม่ถูกต้อง หรือเชื่อมต่อไม่สำเร็จ",
+causes:["รหัสผ่านไม่ถูกต้อง","เลือกชนิดความปลอดภัยหรือวิธีเข้ารหัสไม่ตรง","บันทึกการตั้งค่าเครือข่ายเดิมผิด","เราเตอร์จำกัดจำนวนอุปกรณ์"],
+steps:["ตรวจรหัสผ่านจากฉลากใต้เราเตอร์หรือจากผู้ดูแลเครือข่าย","ลืมเครือข่ายเดิมแล้วเชื่อมต่อใหม่","ปิด Caps Lock และตรวจภาษาแป้นพิมพ์","รีสตาร์ตเราเตอร์","หากยังไม่ได้ ให้ตรวจการตั้งค่าความปลอดภัย Wi-Fi ของเราเตอร์ เช่น WPA2/WPA3 และรหัสผ่านปัจจุบัน"],
+result:"เชื่อมต่อ Wi-Fi สำเร็จและใช้งานอินเทอร์เน็ตได้",
+checks:["ลองเชื่อมต่อจากอุปกรณ์อื่นด้วยรหัสเดียวกัน","หากใช้เครือข่ายองค์กร อาจต้องขอสิทธิ์หรือใช้บัญชีองค์กร"],
+refs:[["Microsoft Support: แก้ไขปัญหา Wi-Fi ใน Windows","https://support.microsoft.com/th-th/windows/fix-wi-fi-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W04",title:"เชื่อมต่อ Wi-Fi ได้แต่ไม่มีอินเทอร์เน็ต",cat:"wifi",icon:"🌐",keywords:"wifi connected no internet ไม่มีอินเทอร์เน็ต",
+symptoms:"สถานะ Wi-Fi เชื่อมต่อแล้ว แต่เปิดเว็บหรือใช้แอปออนไลน์ไม่ได้",
+causes:["เราเตอร์ไม่ได้รับอินเทอร์เน็ตจากผู้ให้บริการ","IP หรือ DNS ผิดพลาด","Proxy หรือ VPN ขัดขวาง","ไฟร์วอลล์หรือซอฟต์แวร์ความปลอดภัยบล็อกการเชื่อมต่อ"],
+steps:["ตรวจว่าอุปกรณ์อื่นใช้อินเทอร์เน็ตผ่าน Wi-Fi เดียวกันได้หรือไม่","รีสตาร์ตเราเตอร์และโมเด็ม","ลืม Wi-Fi แล้วเชื่อมต่อใหม่","เปิด Settings > Network & internet > Wi-Fi > คุณสมบัติ แล้วตั้ง IP assignment และ DNS server เป็น Automatic (DHCP)","ปิด VPN และ Proxy ชั่วคราวแล้วทดสอบ","เปิด Command Prompt แบบ Administrator แล้วรัน ipconfig /release, ipconfig /renew และ ipconfig /flushdns"],
+result:"เบราว์เซอร์เปิดเว็บไซต์ได้และแอปออนไลน์ใช้งานได้",
+checks:["รัน ping 8.8.8.8 เพื่อทดสอบการเชื่อมต่อตรงไปยัง IP","หาก ping IP ได้แต่เปิดชื่อเว็บไม่ได้ ให้โฟกัสที่ DNS"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"],["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อ","https://support.google.com/chrome/answer/6098869?hl=th"]]},
+
+{id:"W05",title:"สัญญาณ Wi-Fi อ่อน",cat:"wifi",icon:"📶",keywords:"wifi อ่อน สัญญาณ สัญญาณอ่อน ช้า",
+symptoms:"ไอคอน Wi-Fi มีเส้นสัญญาณน้อย โหลดหน้าเว็บช้า หรือวิดีโอสะดุด",
+causes:["อยู่ไกลจากเราเตอร์","มีผนังหนาหรือสิ่งกีดขวาง","อุปกรณ์หรือเครือข่ายข้างเคียงแทรกสัญญาณ","เราเตอร์วางในตำแหน่งไม่เหมาะสม"],
+steps:["ย้ายคอมพิวเตอร์เข้าใกล้เราเตอร์","วางเราเตอร์ในที่โล่ง สูงจากพื้น และห่างจากไมโครเวฟหรืออุปกรณ์ไร้สาย","รีสตาร์ตเราเตอร์","ลองเชื่อมต่อผ่านสาย LAN เพื่อเปรียบเทียบความเร็ว","หากใช้ 5 GHz ให้ลอง 2.4 GHz เมื่ออยู่ไกลจากเราเตอร์ เพราะ 2.4 GHz ทะลุสิ่งกีดขวางได้ดีกว่าแต่ความเร็วสูงสุดต่ำกว่า"],
+result:"สัญญาณดีขึ้นและการใช้งานอินเทอร์เน็ตราบรื่นขึ้น",
+checks:["ทดสอบความเร็วในตำแหน่งต่าง ๆ ของบ้านหรือห้อง","ตรวจว่าอุปกรณ์อื่นมีอาการเดียวกันหรือไม่"],
+refs:[["Microsoft Support: แก้ไขปัญหา Wi-Fi ใน Windows","https://support.microsoft.com/th-th/windows/fix-wi-fi-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W06",title:"Wi-Fi หลุดบ่อย",cat:"drop",icon:"📉",keywords:"wifi หลุด ตัดบ่อย หลุดบ่อย",
+symptoms:"เชื่อมต่อได้ชั่วคราวแล้วหลุด ต้องเชื่อมต่อใหม่บ่อยครั้ง",
+causes:["สัญญาณอ่อนหรือสัญญาณรบกวน","ไดรเวอร์ Wi-Fi เก่าหรือมีปัญหา","การตั้งค่าประหยัดพลังงานปิดอะแดปเตอร์","เราเตอร์ร้อนหรือเฟิร์มแวร์เก่า"],
+steps:["รีสตาร์ตคอมพิวเตอร์และเราเตอร์","อัปเดตไดรเวอร์ Wi-Fi จากเว็บไซต์ผู้ผลิตคอมพิวเตอร์","เปิด Device Manager > Network adapters > คลิกขวาที่ Wi-Fi adapter > Properties > Power Management แล้วยกเลิก “Allow the computer to turn off this device to save power”","ลืมเครือข่ายแล้วเชื่อมต่อใหม่","อัปเดตเฟิร์มแวร์เราเตอร์ตามคู่มือของผู้ผลิต"],
+result:"การเชื่อมต่อ Wi-Fi คงที่ขึ้น",
+checks:["สังเกตว่าหลุดเฉพาะช่วงใช้งานหนักหรือหลุดตลอดเวลา","ทดสอบด้วยสาย LAN เพื่อแยกปัญหา Wi-Fi ออกจากอินเทอร์เน็ต"],
+refs:[["Microsoft Support: แก้ไขปัญหา Wi-Fi ใน Windows","https://support.microsoft.com/th-th/windows/fix-wi-fi-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W07",title:"มองไม่เห็นเครือข่าย 5 GHz",cat:"wifi",icon:"📡",keywords:"5ghz 5 ghz wifi ไม่เห็น",
+symptoms:"เห็น Wi-Fi 2.4 GHz แต่ไม่เห็น 5 GHz",
+causes:["การ์ด Wi-Fi ไม่รองรับ 5 GHz","อยู่ไกลเกินไป","ชื่อ SSID ของ 5 GHz ถูกปิด","ช่องสัญญาณหรือการตั้งค่าเราเตอร์ผิด"],
+steps:["ตรวจสเปกการ์ด Wi-Fi ว่ารองรับ 802.11ac/ax หรือ 5 GHz","เข้าใกล้เราเตอร์แล้วรีเฟรชรายชื่อเครือข่าย","รีสตาร์ตเราเตอร์","ตรวจในหน้าตั้งค่าเราเตอร์ว่าเปิด SSID 5 GHz และตั้งชื่อเครือข่ายถูกต้อง","หากการ์ดไม่รองรับ ให้ใช้ 2.4 GHz หรือเชื่อมผ่านสาย LAN"],
+result:"มองเห็นและเชื่อมต่อ 5 GHz ได้ หากฮาร์ดแวร์รองรับ",
+checks:["ตรวจรุ่นการ์ด Wi-Fi ใน Device Manager > Network adapters","ทดสอบจากอุปกรณ์อื่นที่รองรับ 5 GHz"],
+refs:[["Microsoft Support: แก้ไขปัญหา Wi-Fi ใน Windows","https://support.microsoft.com/th-th/windows/fix-wi-fi-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W08",title:"Wi-Fi ปิดอยู่หรือโหมดเครื่องบินเปิดอยู่",cat:"wifi",icon:"✈️",keywords:"airplane mode โหมดเครื่องบิน wifi ปิด",
+symptoms:"ไม่เห็น Wi-Fi หรือไอคอนเครือข่ายแสดงเครื่องบิน",
+causes:["โหมดเครื่องบินเปิดอยู่","ปิด Wi-Fi โดยไม่ตั้งใจ","ปุ่มลัดหรือสวิตช์ Wi-Fi ถูกปิด"],
+steps:["เปิด Settings > Network & internet > Airplane mode แล้วปิดโหมดเครื่องบิน","เปิด Wi-Fi อีกครั้ง","เลือกไอคอนเครือข่ายที่มุมขวาล่างแล้วตรวจสถานะ Wi-Fi","รีสตาร์ตคอมพิวเตอร์หากยังไม่ปรากฏ"],
+result:"Wi-Fi เปิดใช้งานและมองเห็นเครือข่ายได้",
+checks:["ตรวจว่าปุ่ม Fn + ไอคอน Wi-Fi หรือสวิตช์ด้านข้างเครื่องไม่ได้ปิดอยู่"],
+refs:[["Microsoft Support: แก้ไขปัญหา Wi-Fi ใน Windows","https://support.microsoft.com/th-th/windows/fix-wi-fi-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"L01",title:"เชื่อมต่อสาย LAN ไม่ได้",cat:"lan",icon:"🔌",keywords:"lan ethernet สายแลน เชื่อมไม่ได้",
+symptoms:"เสียบสายแล้วไม่มีอินเทอร์เน็ต หรือไอคอนเครือข่ายแสดงสถานะผิดปกติ",
+causes:["สายหลวมหรือเสียหาย","พอร์ต LAN หรือสวิตช์มีปัญหา","อะแดปเตอร์ Ethernet ถูกปิด","ไดรเวอร์หรือการตั้งค่า IP ผิดพลาด"],
+steps:["ถอดสายแล้วเสียบใหม่ให้แน่นทั้งสองด้าน","ลองเปลี่ยนสาย LAN หรือพอร์ตบนเราเตอร์/สวิตช์","รีสตาร์ตคอมพิวเตอร์และเราเตอร์","เปิด Settings > Network & internet > Ethernet แล้วตรวจว่าอะแดปเตอร์เปิดอยู่","เปิด Command Prompt แบบ Administrator แล้วรัน ipconfig /release, ipconfig /renew, ipconfig /flushdns ตามลำดับ"],
+result:"สถานะ Ethernet เชื่อมต่อและใช้อินเทอร์เน็ตได้",
+checks:["สังเกตไฟที่พอร์ต LAN ของคอมพิวเตอร์และเราเตอร์","ทดสอบสายเดียวกันกับคอมพิวเตอร์เครื่องอื่น"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"L02",title:"คอมพิวเตอร์ไม่ตรวจพบสาย Ethernet",cat:"lan",icon:"🖥️",keywords:"ไม่ตรวจพบ ethernet สายแลน ไม่ขึ้น",
+symptoms:"เสียบสายแล้ว Windows ไม่แสดง Ethernet หรือแสดง “Network cable unplugged”",
+causes:["สายหรือพอร์ตเสีย","อะแดปเตอร์ Ethernet ถูกปิดใช้งาน","ไดรเวอร์ขาดหายหรือเสียหาย","การตั้งค่า BIOS/UEFI ปิด LAN"],
+steps:["ลองเปลี่ยนสาย LAN และพอร์ต","เปิด Device Manager > Network adapters แล้วตรวจว่า Ethernet adapter ปรากฏและไม่มีเครื่องหมายเตือน","คลิกขวาที่อะแดปเตอร์แล้วเลือก Enable device หากถูกปิดอยู่","อัปเดตหรือติดตั้งไดรเวอร์ Ethernet จากเว็บไซต์ผู้ผลิต","หากยังไม่เห็นอะแดปเตอร์ ให้ตรวจ BIOS/UEFI ว่าเปิด Onboard LAN หรือ Integrated NIC"],
+result:"Windows ตรวจพบ Ethernet adapter และเชื่อมต่อได้",
+checks:["ทดสอบกับสายและพอร์ตอื่น","ตรวจว่าอะแดปเตอร์ปรากฏใน Device Manager"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"L03",title:"สาย LAN หรือพอร์ตเครือข่ายมีปัญหา",cat:"lan",icon:"🔌",keywords:"สายแลนเสีย พอร์ตเสีย rj45",
+symptoms:"เชื่อมต่อได้เป็นช่วง ๆ ความเร็วต่ำ หรือไม่มีสัญญาณเลย",
+causes:["สายบิด หัก หรือขั้วเสียหาย","พอร์ต LAN ชำรุด","สายยาวเกินมาตรฐานหรือคุณภาพต่ำ"],
+steps:["ถอดและเสียบสายใหม่ให้แน่น","เปลี่ยนสาย LAN ที่ทราบว่าใช้ได้","ลองพอร์ต LAN อื่นบนเราเตอร์หรือสวิตช์","ทดสอบสายเดียวกันกับอุปกรณ์อื่น","หากสายยาวมาก ให้ใช้สายคุณภาพดีและระยะที่เหมาะสม"],
+result:"การเชื่อมต่อผ่านสาย LAN นิ่งและเร็วขึ้น",
+checks:["สังเกตไฟ Link/Act ที่พอร์ต","ทดสอบความเร็วแบบมีสายและไร้สายเพื่อเปรียบเทียบ"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"S01",title:"อินเทอร์เน็ตช้ากว่าปกติ",cat:"slow",icon:"🐢",keywords:"เน็ตช้า ช้า ความเร็วต่ำ",
+symptoms:"โหลดเว็บหรือดาวน์โหลดช้ากว่าเดิม วิดีโอค้าง",
+causes:["สัญญาณ Wi-Fi อ่อน","เครือข่ายมีผู้ใช้หนัก","แอปหรืออุปกรณ์ใช้แบนด์วิดท์มาก","ปัญหาจากผู้ให้บริการหรือเว็บไซต์ปลายทาง"],
+steps:["ทดสอบความเร็วด้วยเบราว์เซอร์และเปรียบเทียบกับแพ็กเกจที่ใช้","ปิดแอปดาวน์โหลด สตรีม หรือแบ็กอัปที่ใช้เน็ตชั่วคราว","รีสตาร์ตเราเตอร์และคอมพิวเตอร์","ลองเชื่อมต่อด้วยสาย LAN","ทดสอบในเวลาอื่นเพื่อดูว่าเกิดเฉพาะช่วงใช้งานหนักหรือไม่"],
+result:"ความเร็วและการใช้งานกลับมาใกล้เคียงปกติ",
+checks:["ทดสอบหลายเว็บไซต์และหลายช่วงเวลา","ตรวจว่าอุปกรณ์อื่นช้าด้วยหรือไม่"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"S02",title:"อินเทอร์เน็ตช้าเฉพาะบางแอปพลิเคชัน",cat:"slow",icon:"📱",keywords:"แอปช้า โปรแกรมช้า เกมช้า",
+symptoms:"เว็บปกติใช้ได้ แต่แอป เกม หรือโปรแกรมเฉพาะช้าหรือใช้ไม่ได้",
+causes:["แอปต้องใช้พอร์ตหรือเซิร์ฟเวอร์เฉพาะ","Proxy/VPN รบกวน","ไฟร์วอลล์บล็อก","เซิร์ฟเวอร์ของบริการมีปัญหา"],
+steps:["ปิด VPN และ Proxy ชั่วคราวแล้วทดสอบ","ตรวจการตั้งค่า Firewall และอนุญาตแอปที่จำเป็นเฉพาะเมื่อแน่ใจว่าปลอดภัย","อัปเดตแอปเป็นเวอร์ชันล่าสุด","รีสตาร์ตแอปและคอมพิวเตอร์","ทดสอบบนอุปกรณ์หรือเครือข่ายอื่นเพื่อแยกว่าเป็นฝั่งเซิร์ฟเวอร์หรือไม่"],
+result:"แอปที่มีปัญหาใช้งานได้ตามปกติ",
+checks:["ตรวจหน้าสถานะบริการของผู้ให้บริการแอปหากมี","ทดสอบเบราว์เซอร์อื่นเพื่อแยกปัญหา"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการโหลดหน้าเว็บ","https://support.google.com/chrome/answer/6098869?hl=th"]]},
+
+{id:"S03",title:"อินเทอร์เน็ตมีความหน่วงสูง",cat:"slow",icon:"⏱️",keywords:"ping สูง latency หน่วง เกม",
+symptoms:"เกมหรือการประชุมออนไลน์หน่วง แม้ความเร็วดาวน์โหลดดูปกติ",
+causes:["สัญญาณ Wi-Fi ไม่เสถียร","เครือข่ายแออัด","ระยะทางไปยังเซิร์ฟเวอร์ไกล","แอปพื้นหลังใช้แบนด์วิดท์"],
+steps:["เชื่อมต่อด้วยสาย LAN แทน Wi-Fi","ปิดการดาวน์โหลด สตรีม หรือแบ็กอัปชั่วคราว","รีสตาร์ตเราเตอร์","เลือกเซิร์ฟเวอร์ใกล้ตัวในเกมหรือแอปที่รองรับ","ทดสอบ ping ด้วยคำสั่ง ping 8.8.8.8 และสังเกตค่าเวลาตอบกลับ"],
+result:"ค่า ping ต่ำลงและการใช้งานแบบเรียลไทม์ราบรื่นขึ้น",
+checks:["ทดสอบ ping หลายครั้งและหลายเวลา","เปรียบเทียบผลระหว่าง Wi-Fi และ LAN"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"S04",title:"การสูญหายของแพ็กเก็ตข้อมูล",cat:"slow",icon:"📦",keywords:"packet loss แพ็กเก็ต หลุด วิดีโอกระตุก",
+symptoms:"เสียงหรือวิดีโอกระตุก การเชื่อมต่อขาดเป็นช่วง ๆ",
+causes:["Wi-Fi หรือสาย LAN ไม่เสถียร","เราเตอร์/สวิตช์มีปัญหา","เครือข่ายแออัด","ปัญหาบนเส้นทางอินเทอร์เน็ต"],
+steps:["ทดสอบด้วยสาย LAN","รีสตาร์ตเราเตอร์และโมเด็ม","รัน ping -n 20 8.8.8.8 แล้วดู “Lost = 0” หรือจำนวนแพ็กเก็ตที่หาย","ปิดแอปที่ใช้เน็ตหนักชั่วคราว","หากยังมี packet loss ให้แจ้งผู้ให้บริการพร้อมผลการทดสอบ"],
+result:"จำนวนแพ็กเก็ตที่หายลดลงและการใช้งานเสถียรขึ้น",
+checks:["ทดสอบซ้ำหลายครั้ง","เปรียบเทียบ Wi-Fi กับ LAN"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"S05",title:"เครือข่ายมีผู้ใช้งานจำนวนมาก",cat:"slow",icon:"👥",keywords:"แชร์เน็ต ผู้ใช้เยอะ แออัด",
+symptoms:"ช้าช่วงค่ำหรือช่วงที่หลายคนใช้งานพร้อมกัน",
+causes:["แบนด์วิดท์ถูกใช้ร่วมกัน","อุปกรณ์จำนวนมากเชื่อมต่อเราเตอร์","การสตรีมหรือดาวน์โหลดพร้อมกัน"],
+steps:["ระบุอุปกรณ์ที่ใช้แบนด์วิดท์มาก เช่น การดาวน์โหลดหรือสตรีม","หยุดการใช้งานหนักชั่วคราว","แยกอุปกรณ์สำคัญไปยังช่อง 5 GHz หรือสาย LAN","รีสตาร์ตเราเตอร์","พิจารณาอัปเกรดแพ็กเกจหรืออุปกรณ์เครือข่ายหากใช้งานหนักต่อเนื่อง"],
+result:"การใช้งานร่วมกันราบรื่นขึ้น",
+checks:["ทดสอบความเร็วเมื่อมีและไม่มีอุปกรณ์อื่นใช้งาน"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"N01",title:"ขึ้นข้อความ “ไม่มีอินเทอร์เน็ต”",cat:"no-internet",icon:"🚫",keywords:"no internet ไม่มีอินเทอร์เน็ต ไม่มีการเชื่อมต่อ",
+symptoms:"Windows แสดง “No internet, secured” หรือ “ไม่มีอินเทอร์เน็ต”",
+causes:["เราเตอร์ไม่ได้รับอินเทอร์เน็ต","IP/DNS ผิดพลาด","Proxy หรือ VPN ขัดขวาง","ปัญหาชั่วคราวของผู้ให้บริการ"],
+steps:["ตรวจว่าอุปกรณ์อื่นใช้เน็ตได้หรือไม่","รีสตาร์ตเราเตอร์และโมเด็ม","ลืมเครือข่ายแล้วเชื่อมต่อใหม่","รัน Windows Network troubleshooter จาก Settings > System > Troubleshoot > Other troubleshooters > Network Adapter","เปิด Command Prompt แบบ Administrator แล้วรัน ipconfig /release, ipconfig /renew, ipconfig /flushdns"],
+result:"สถานะเปลี่ยนเป็น Connected และเปิดเว็บได้",
+checks:["รัน ping 8.8.8.8","ตรวจสถานะไฟอินเทอร์เน็ตบนเราเตอร์"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"N02",title:"เปิดเว็บไซต์ไม่ได้ทุกเว็บไซต์",cat:"no-internet",icon:"🌍",keywords:"เปิดเว็บไม่ได้ ทุกเว็บไซต์",
+symptoms:"ไม่สามารถเข้าเว็บไซต์ใดได้เลย",
+causes:["ไม่มีการเชื่อมต่ออินเทอร์เน็ตจริง","DNS หรือ Proxy ผิด","VPN/Firewall ขัดขวาง","เบราว์เซอร์มีปัญหา"],
+steps:["ตรวจการเชื่อมต่อ Wi-Fi หรือ LAN","ทดสอบด้วยเบราว์เซอร์อื่น","ปิด VPN และ Proxy ชั่วคราว","ตั้ง DNS และ IP เป็น Automatic (DHCP)","รัน ipconfig /flushdns แล้วรีสตาร์ตเบราว์เซอร์"],
+result:"เปิดเว็บไซต์ได้หลายเว็บไซต์",
+checks:["ทดสอบเปิดเว็บด้วย IP โดยตรง เพื่อแยกปัญหา DNS","ตรวจว่าอุปกรณ์อื่นใช้ได้หรือไม่"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"],["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"N03",title:"เปิดบางเว็บไซต์ไม่ได้",cat:"no-internet",icon:"🔒",keywords:"บางเว็บ เปิดไม่ได้ dns โดเมน",
+symptoms:"เว็บบางเว็บเปิดได้ แต่บางเว็บไม่ได้",
+causes:["DNS แคชหรือ DNS server มีปัญหา","เว็บไซต์ปลายทางล่ม","Firewall/Proxy บล็อกโดเมน","ใบรับรองหรือเวลาของเครื่องผิด"],
+steps:["รัน ipconfig /flushdns","เปลี่ยน DNS เป็น Automatic หรือใช้ DNS สาธารณะที่เชื่อถือได้ เช่น 1.1.1.1 หรือ 8.8.8.8","ตรวจว่าเว็บไซต์ล่มหรือไม่โดยเปิดจากเครือข่าย/อุปกรณ์อื่น","ปิด VPN หรือ Proxy ชั่วคราว","ตรวจวัน-เวลาของคอมพิวเตอร์ให้ถูกต้อง"],
+result:"เว็บไซต์ที่มีปัญหาเปิดได้ตามปกติ",
+checks:["ทดสอบโดเมนเดียวกันจากอุปกรณ์อื่น","ตรวจข้อความผิดพลาดในเบราว์เซอร์"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"],["Cloudflare Learning Center: DNS","https://www.cloudflare.com/learning/dns/what-is-dns/"]]},
+
+{id:"N04",title:"อินเทอร์เน็ตใช้ได้ในอุปกรณ์อื่นแต่ใช้ไม่ได้ในคอมพิวเตอร์",cat:"no-internet",icon:"💻",keywords:"อุปกรณ์อื่นได้ คอมไม่ได้",
+symptoms:"โทรศัพท์ใช้ Wi-Fi เดียวกันได้ แต่คอมพิวเตอร์ใช้ไม่ได้",
+causes:["การตั้งค่า IP/DNS/Proxy บนคอมผิด","ไดรเวอร์เครือข่ายมีปัญหา","VPN/Firewall ขัดขวาง","โปรไฟล์เครือข่ายเสียหาย"],
+steps:["ลืมเครือข่ายแล้วเชื่อมต่อใหม่","ตั้ง IP และ DNS เป็น Automatic (DHCP)","ปิด VPN และ Proxy ชั่วคราว","รัน Network troubleshooter","เปิด Command Prompt แบบ Administrator แล้วรัน netsh winsock reset, netsh int ip reset, ipconfig /release, ipconfig /renew, ipconfig /flushdns แล้วรีสตาร์ต"],
+result:"คอมพิวเตอร์ใช้อินเทอร์เน็ตได้เหมือนอุปกรณ์อื่น",
+checks:["ทดสอบด้วยสาย LAN","ตรวจไดรเวอร์อะแดปเตอร์เครือข่าย"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"N05",title:"เชื่อมต่อได้แต่บางบริการใช้งานไม่ได้",cat:"no-internet",icon:"🧩",keywords:"บางบริการ ไม่ได้ youtube zoom teams",
+symptoms:"เว็บทั่วไปเปิดได้ แต่ YouTube, Zoom, Teams หรือเกมใช้ไม่ได้",
+causes:["บริการปลายทางมีปัญหา","Firewall/Proxy บล็อกพอร์ตหรือโดเมน","VPN เปลี่ยนเส้นทางการเชื่อมต่อ","DNS มีปัญหาเฉพาะโดเมน"],
+steps:["ปิด VPN และ Proxy ชั่วคราว","รัน ipconfig /flushdns","ตรวจสถานะบริการของผู้ให้บริการนั้น","อัปเดตแอปและรีสตาร์ตคอมพิวเตอร์","ตรวจ Firewall ให้อนุญาตแอปที่จำเป็นเฉพาะเมื่อแน่ใจว่าปลอดภัย"],
+result:"บริการที่มีปัญหาใช้งานได้ตามปกติ",
+checks:["ทดสอบบริการเดียวกันจากอุปกรณ์อื่น","ตรวจข้อความผิดพลาดของแอป"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"]]},
+
+{id:"N06",title:"อินเทอร์เน็ตหลุดบ่อย",cat:"drop",icon:"📉",keywords:"หลุดบ่อย ตัดบ่อย หลุดเน็ต",
+symptoms:"เน็ตหลุดเป็นระยะ ต้องรีเชื่อมต่อบ่อย",
+causes:["สัญญาณ Wi-Fi ไม่เสถียร","เราเตอร์/โมเด็มมีปัญหา","ไดรเวอร์เครือข่าย","ปัญหาจากผู้ให้บริการ"],
+steps:["รีสตาร์ตเราเตอร์และคอมพิวเตอร์","ทดสอบด้วยสาย LAN","อัปเดตไดรเวอร์อะแดปเตอร์เครือข่าย","ยกเลิกการประหยัดพลังงานของอะแดปเตอร์","บันทึกเวลาที่หลุดและแจ้งผู้ให้บริการหากยังไม่หาย"],
+result:"การเชื่อมต่อคงที่ขึ้น",
+checks:["ทดสอบหลายช่วงเวลา","เปรียบเทียบ Wi-Fi กับ LAN"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"D01",title:"DNS Server ไม่ตอบสนอง",cat:"dns",icon:"🌐",keywords:"dns server not responding dns ไม่ตอบสนอง",
+symptoms:"เปิดเว็บไม่ได้และอาจขึ้นข้อความ “DNS server isn’t responding”",
+causes:["DNS server ที่ตั้งไว้ใช้ไม่ได้","DNS cache เสียหาย","การตั้งค่า DNS ผิด","ปัญหาจากเราเตอร์หรือผู้ให้บริการ"],
+steps:["รัน ipconfig /flushdns","เปลี่ยน DNS เป็น Automatic (DHCP) หรือใช้ DNS สาธารณะ เช่น 1.1.1.1 หรือ 8.8.8.8","รีสตาร์ตเราเตอร์","ทดสอบเปิดเว็บด้วย IP โดยตรงเพื่อยืนยันว่า DNS เป็นสาเหตุ","หากยังไม่ได้ ให้ติดต่อผู้ดูแลเครือข่ายหรือผู้ให้บริการ"],
+result:"แปลงชื่อโดเมนเป็น IP ได้และเปิดเว็บได้",
+checks:["รัน nslookup google.com แล้วดูว่าได้ IP ตอบกลับหรือไม่","ทดสอบ DNS สำรอง"],
+refs:[["Cloudflare Learning Center: DNS คืออะไร","https://www.cloudflare.com/learning/dns/what-is-dns/"],["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"D02",title:"ไม่สามารถค้นหาที่อยู่เว็บไซต์ได้",cat:"dns",icon:"🔎",keywords:"dns_probe_finished ค้นหาเว็บไม่ได้",
+symptoms:"เบราว์เซอร์แสดงข้อผิดพลาดเกี่ยวกับการค้นหาที่อยู่เว็บไซต์",
+causes:["DNS ผิดพลาด","DNS cache เสียหาย","Proxy/VPN รบกวน","โดเมนปลายทางมีปัญหา"],
+steps:["รัน ipconfig /flushdns","ตั้ง DNS เป็น Automatic หรือเปลี่ยนเป็น DNS สาธารณะ","ปิด VPN และ Proxy ชั่วคราว","ทดสอบเว็บไซต์อื่น","ตรวจว่าโดเมนพิมพ์ถูกต้อง"],
+result:"เบราว์เซอร์ค้นหาและเปิดเว็บไซต์ได้",
+checks:["รัน nslookup ชื่อเว็บไซต์","ทดสอบด้วยเบราว์เซอร์อื่น"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"],["Cloudflare Learning Center: DNS","https://www.cloudflare.com/learning/dns/what-is-dns/"]]},
+
+{id:"D03",title:"เข้าเว็บด้วยชื่อโดเมนไม่ได้ แต่เข้าด้วย IP ได้",cat:"dns",icon:"🔢",keywords:"เข้าด้วย ip ได้ ชื่อโดเมนไม่ได้ dns",
+symptoms:"เปิดด้วย IP ได้ แต่พิมพ์ชื่อเว็บไซต์ไม่ได้",
+causes:["DNS ไม่ทำงาน","DNS cache เสียหาย","DNS server ผิด","Proxy รบกวน"],
+steps:["รัน ipconfig /flushdns","เปลี่ยน DNS เป็น Automatic หรือ DNS สาธารณะ","ปิด Proxy และ VPN ชั่วคราว","รีสตาร์ตเราเตอร์","ทดสอบ nslookup ชื่อโดเมน"],
+result:"เข้าเว็บด้วยชื่อโดเมนได้",
+checks:["ทดสอบหลายโดเมน","ตรวจการตั้งค่า DNS ใน Adapter options"],
+refs:[["Cloudflare Learning Center: DNS","https://www.cloudflare.com/learning/dns/what-is-dns/"],["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"D04",title:"การตั้งค่า DNS ผิดหลังเปลี่ยนเราเตอร์",cat:"dns",icon:"📡",keywords:"dns เปลี่ยนเราเตอร์ ตั้งค่าผิด",
+symptoms:"หลังเปลี่ยนเราเตอร์ เปิดเว็บไม่ได้หรือ DNS ผิดพลาด",
+causes:["DNS เดิมค้างอยู่","IP ยังไม่ได้รับใหม่","การตั้งค่าเราเตอร์ใหม่ยังไม่สมบูรณ์"],
+steps:["ลืมเครือข่ายแล้วเชื่อมต่อใหม่","ตั้ง IP และ DNS เป็น Automatic (DHCP)","รัน ipconfig /release, ipconfig /renew และ ipconfig /flushdns","รีสตาร์ตเราเตอร์","ตรวจการตั้งค่า DNS บนเราเตอร์ใหม่"],
+result:"ใช้อินเทอร์เน็ตผ่านเราเตอร์ใหม่ได้ตามปกติ",
+checks:["ตรวจ IP ใหม่ด้วย ipconfig","ทดสอบเว็บไซต์หลายเว็บ"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"I01",title:"ไม่ได้รับ IP Address จาก DHCP",cat:"ip",icon:"🔢",keywords:"dhcp ไม่ได้ ip 169.254",
+symptoms:"ได้ IP รูปแบบ 169.254.x.x หรือไม่มี IP เลย",
+causes:["DHCP ของเราเตอร์ไม่ทำงาน","อะแดปเตอร์ตั้ง IP คงที่ผิด","สายหรือ Wi-Fi ไม่เสถียร","ไดรเวอร์มีปัญหา"],
+steps:["ตั้ง IP assignment เป็น Automatic (DHCP)","ลืมเครือข่ายแล้วเชื่อมต่อใหม่","รีสตาร์ตเราเตอร์และคอมพิวเตอร์","รัน ipconfig /release และ ipconfig /renew","หากยังไม่ได้ ให้ตรวจ DHCP server ของเราเตอร์หรือติดต่อผู้ดูแลเครือข่าย"],
+result:"ได้รับ IP ใหม่จากเครือข่ายและใช้อินเทอร์เน็ตได้",
+checks:["รัน ipconfig แล้วดู IPv4 Address และ Default Gateway","ตรวจว่าอุปกรณ์อื่นได้ IP ปกติหรือไม่"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"I02",title:"ได้รับ IP Address ไม่ถูกต้อง",cat:"ip",icon:"⚠️",keywords:"ip ผิด 169.254 ผิดปกติ",
+symptoms:"IP เป็น 169.254.x.x หรือ IP ไม่ตรงกับเครือข่าย",
+causes:["DHCP ล้มเหลว","การตั้งค่า IP คงที่ผิด","อะแดปเตอร์มีปัญหา"],
+steps:["เปลี่ยนเป็น Automatic (DHCP)","รัน ipconfig /release และ ipconfig /renew","รีสตาร์ตเราเตอร์","ตรวจว่า Default Gateway และ Subnet mask ถูกต้องหากใช้ IP คงที่","อัปเดตไดรเวอร์อะแดปเตอร์เครือข่าย"],
+result:"ได้ IP ที่ถูกต้องตามเครือข่าย",
+checks:["รัน ipconfig /all","เปรียบเทียบการตั้งค่ากับอุปกรณ์ที่ใช้ได้"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"I03",title:"การตั้งค่าเกตเวย์เริ่มต้นไม่ถูกต้อง",cat:"ip",icon:"🚪",keywords:"default gateway gateway ผิด",
+symptoms:"เชื่อมต่อเครือข่ายได้แต่ออกอินเทอร์เน็ตไม่ได้",
+causes:["ตั้ง Default Gateway ผิด","ใช้ IP คงที่โดยไม่ตรงกับเครือข่าย","เราเตอร์เปลี่ยนการตั้งค่า"],
+steps:["เปลี่ยนเป็น Automatic (DHCP) หากไม่จำเป็นต้องใช้ IP คงที่","ตรวจ Default Gateway จาก ipconfig และเปรียบเทียบกับเราเตอร์","แก้ Gateway ให้ตรงกับเครือข่ายเมื่อใช้ IP คงที่","รีสตาร์ตคอมพิวเตอร์และเราเตอร์","ทดสอบ ping Gateway"],
+result:"สามารถส่งข้อมูลออกอินเทอร์เน็ตได้",
+checks:["รัน ipconfig และ ping ไปยัง Gateway","ตรวจการตั้งค่าบนเราเตอร์"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"I04",title:"การเชื่อมต่อ IPv4 หรือ IPv6 มีปัญหา",cat:"ip",icon:"🔀",keywords:"ipv4 ipv6 ปัญหา",
+symptoms:"บางเว็บไซต์เปิดไม่ได้หรือการเชื่อมต่อไม่เสถียร",
+causes:["การตั้งค่า IPv4/IPv6 ผิด","DNS สำหรับ IPv6 มีปัญหา","เราเตอร์หรือ ISP ยังไม่รองรับ IPv6 เต็มรูปแบบ"],
+steps:["ตรวจว่า IPv4 และ IPv6 เปิดใช้งานใน Adapter options","ตั้ง IP และ DNS เป็น Automatic","รัน ipconfig /release, ipconfig /renew และ ipconfig /flushdns","รีสตาร์ตเราเตอร์","หาก IPv6 ยังมีปัญหา ให้ติดต่อผู้ดูแลเครือข่ายหรือผู้ให้บริการก่อนปิดการใช้งาน IPv6"],
+result:"การเชื่อมต่อ IPv4/IPv6 ทำงานได้ตามปกติ",
+checks:["รัน ipconfig และ ping 8.8.8.8","ทดสอบเว็บไซต์ที่ใช้ IPv6"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"I05",title:"IP Address ชนกัน",cat:"ip",icon:"⚔️",keywords:"ip conflict ชนกัน duplicate ip",
+symptoms:"เครือข่ายขาดหรือแจ้งเตือน IP conflict",
+causes:["ตั้ง IP คงที่ซ้ำกับอุปกรณ์อื่น","DHCP จัดสรรซ้ำ","การตั้งค่าเราเตอร์ผิด"],
+steps:["เปลี่ยนอุปกรณ์ที่มีปัญหาเป็น Automatic (DHCP)","รีสตาร์ตเราเตอร์","หากจำเป็นต้องใช้ IP คงที่ ให้เลือก IP ที่ไม่ซ้ำและอยู่นอกช่วง DHCP","ตรวจการตั้งค่า DHCP บนเราเตอร์","แจ้งผู้ดูแลเครือข่ายหากอยู่ในองค์กร"],
+result:"ไม่มีการแจ้งเตือน IP conflict และใช้เครือข่ายได้",
+checks:["ตรวจ IP ของอุปกรณ์ทุกเครื่องในเครือข่าย","รัน ipconfig /all"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"R01",title:"เราเตอร์หรือโมเด็มเชื่อมต่ออินเทอร์เน็ตไม่ได้",cat:"router",icon:"📡",keywords:"เราเตอร์ โมเด็ม เชื่อมไม่ได้",
+symptoms:"อุปกรณ์ทุกเครื่องใช้เน็ตไม่ได้",
+causes:["สาย WAN หลวม","ผู้ให้บริการมีปัญหา","โมเด็มค้าง","การตั้งค่าเราเตอร์ผิด"],
+steps:["ตรวจไฟและสาย WAN/Fiber ให้แน่น","รีสตาร์ตโมเด็มและเราเตอร์","ตรวจว่าอุปกรณ์อื่นใช้เน็ตได้หรือไม่","ตรวจสถานะบริการของผู้ให้บริการ","หากยังไม่ได้ ให้ติดต่อผู้ให้บริการเพื่อตรวจสอบเส้นและอุปกรณ์"],
+result:"เราเตอร์รับอินเทอร์เน็ตและอุปกรณ์ใช้งานได้",
+checks:["สังเกตไฟสถานะ Internet/WAN","ทดสอบจากหลายอุปกรณ์"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"R02",title:"ไฟสถานะอินเทอร์เน็ตบนเราเตอร์ผิดปกติ",cat:"router",icon:"🚨",keywords:"ไฟเราเตอร์ แดง ผิดปกติ",
+symptoms:"ไฟ Internet/WAN แดง กระพริบผิดปกติ หรือดับ",
+causes:["สาย WAN หลวม","โมเด็มยังไม่ซิงก์กับเครือข่าย","ผู้ให้บริการมีปัญหา","อุปกรณ์เสียหาย"],
+steps:["ตรวจสาย WAN/Fiber ให้แน่น","รีสตาร์ตโมเด็มและเราเตอร์","รอให้ไฟสถานะกลับมาปกติ","ตรวจสถานะบริการกับผู้ให้บริการ","หากไฟยังผิดปกติ ให้แจ้งผู้ให้บริการเพื่อตรวจสอบ"],
+result:"ไฟสถานะกลับมาปกติและใช้อินเทอร์เน็ตได้",
+checks:["สังเกตไฟทุกดวงตามคู่มือของรุ่นอุปกรณ์","ทดสอบจากอุปกรณ์อื่น"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"R03",title:"การตั้งค่าเครือข่ายผิดพลาดหลังเปลี่ยนเราเตอร์",cat:"router",icon:"🔄",keywords:"เปลี่ยนเราเตอร์ ตั้งค่า ผิด",
+symptoms:"หลังเปลี่ยนเราเตอร์ ใช้เน็ตไม่ได้หรือตั้งค่าเดิมค้าง",
+causes:["ชื่อ Wi-Fi หรือรหัสผ่านเปลี่ยน","IP/DNS เดิมค้าง","การตั้งค่าเราเตอร์ใหม่ยังไม่สมบูรณ์"],
+steps:["ลืมเครือข่าย Wi-Fi เดิมแล้วเชื่อมต่อใหม่","ตั้ง IP และ DNS เป็น Automatic (DHCP)","รัน ipconfig /release, ipconfig /renew และ ipconfig /flushdns","รีสตาร์ตคอมพิวเตอร์และเราเตอร์","ตรวจชื่อ Wi-Fi และรหัสผ่านใหม่จากฉลากหรือผู้ติดตั้ง"],
+result:"ใช้เครือข่ายใหม่ได้ตามปกติ",
+checks:["ตรวจ IP ใหม่ด้วย ipconfig","ทดสอบเว็บไซต์หลายเว็บ"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"R04",title:"การเชื่อมต่อถูกตัดจากผู้ให้บริการอินเทอร์เน็ต",cat:"router",icon:"📞",keywords:"isp ตัด หมดแพ็กเกจ โดนตัด",
+symptoms:"เน็ตหายทั้งบ้านหรือทั้งองค์กร แม้รีสตาร์ตแล้ว",
+causes:["ค้างชำระหรือหมดแพ็กเกจ","ปัญหาเส้นหรืออุปกรณ์ของผู้ให้บริการ","การตั้งค่าบัญชีผู้ใช้"],
+steps:["ตรวจสถานะการชำระเงินและแพ็กเกจ","ตรวจไฟสถานะบนโมเด็ม/เราเตอร์","รีสตาร์ตโมเด็มและเราเตอร์","ติดต่อผู้ให้บริการเพื่อตรวจสถานะเส้นและบัญชี","ห้ามรีเซ็ตเราเตอร์เป็นค่าโรงงานก่อนสำรองการตั้งค่า เพราะอาจทำให้การตั้งค่าเดิมหาย"],
+result:"บริการกลับมาใช้งานได้ตามปกติ",
+checks:["ทดสอบจากหลายอุปกรณ์","บันทึกเวลาและไฟสถานะเพื่อแจ้งผู้ให้บริการ"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"R05",title:"เราเตอร์ร้อนหรือทำงานไม่เสถียร",cat:"router",icon:"🌡️",keywords:"เราเตอร์ร้อน รีบูต ค้าง",
+symptoms:"เน็ตหลุดเป็นช่วง ๆ หรือเราเตอร์ค้าง",
+causes:["ระบายอากาศไม่ดี","ใช้งานหนักต่อเนื่อง","เฟิร์มแวร์เก่า","อุปกรณ์เก่าหรือเสียหาย"],
+steps:["วางเราเตอร์ในที่โล่งและระบายอากาศดี","ปิดเครื่องสักครู่แล้วเปิดใหม่","อัปเดตเฟิร์มแวร์ตามคู่มือผู้ผลิต","ลดจำนวนอุปกรณ์ที่เชื่อมต่อพร้อมกันชั่วคราว","หากยังค้างบ่อย ให้พิจารณาเปลี่ยนอุปกรณ์"],
+result:"เราเตอร์ทำงานเสถียรขึ้น",
+checks:["สังเกตอุณหภูมิและอาการค้าง","ทดสอบหลังรีสตาร์ต"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W01",title:"Windows แสดงข้อความ “ไม่สามารถระบุเครือข่ายได้”",cat:"windows",icon:"🪟",keywords:"unidentified network ไม่สามารถระบุเครือข่าย",
+symptoms:"เชื่อมต่อแล้วสถานะเป็น “Unidentified network”",
+causes:["IP/DNS ผิด","อะแดปเตอร์หรือไดรเวอร์มีปัญหา","Proxy/VPN รบกวน","เราเตอร์มีปัญหา"],
+steps:["ลืมเครือข่ายแล้วเชื่อมต่อใหม่","ตั้ง IP และ DNS เป็น Automatic (DHCP)","ปิด VPN และ Proxy ชั่วคราว","รัน Network troubleshooter","เปิด Command Prompt แบบ Administrator แล้วรัน netsh winsock reset, netsh int ip reset, ipconfig /release, ipconfig /renew, ipconfig /flushdns แล้วรีสตาร์ต"],
+result:"สถานะเปลี่ยนเป็นเครือข่ายที่ระบุได้และใช้เน็ตได้",
+checks:["รัน ipconfig /all","ทดสอบด้วยสาย LAN"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W02",title:"การตั้งค่าเครือข่าย Windows ผิดพลาด",cat:"windows",icon:"⚙️",keywords:"ตั้งค่าเครือข่าย ผิด windows",
+symptoms:"เชื่อมต่อได้แต่ใช้เน็ตไม่ได้ หรือการตั้งค่าแปลก",
+causes:["IP/DNS/Proxy ผิด","โปรไฟล์เครือข่ายเสียหาย","ซอฟต์แวร์ความปลอดภัยรบกวน"],
+steps:["ตั้ง IP และ DNS เป็น Automatic (DHCP)","ปิด Proxy ชั่วคราว","รัน Network troubleshooter","รันคำสั่ง netsh winsock reset, netsh int ip reset, ipconfig /release, ipconfig /renew, ipconfig /flushdns แล้วรีสตาร์ต","หากยังไม่ได้ ให้ตรวจไดรเวอร์และการตั้งค่าจากผู้ดูแลระบบ"],
+result:"การตั้งค่ากลับสู่ค่าปกติและใช้เน็ตได้",
+checks:["รัน ipconfig /all","ทดสอบหลายเว็บไซต์"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"W03",title:"ปัญหาไดรเวอร์การ์ดเครือข่าย",cat:"windows",icon:"🧩",keywords:"driver network adapter ไดรเวอร์",
+symptoms:"ไม่เห็น Wi-Fi/Ethernet หรือมีเครื่องหมายเตือนใน Device Manager",
+causes:["ไดรเวอร์เก่าหรือเสียหาย","อะแดปเตอร์ถูกปิด","อัปเดต Windows ทำให้ไดรเวอร์มีปัญหา"],
+steps:["เปิด Device Manager > Network adapters","คลิกขวาที่อะแดปเตอร์แล้วเลือก Update driver หรือติดตั้งไดรเวอร์จากเว็บผู้ผลิต","หากมีปัญหา ให้ Uninstall device แล้วรีสตาร์ตเพื่อให้ Windows ติดตั้งใหม่","ตรวจว่าอะแดปเตอร์ไม่ถูกปิดใช้งาน","อัปเดต Windows และไดรเวอร์ให้เป็นเวอร์ชันล่าสุด"],
+result:"อะแดปเตอร์ทำงานปกติและเชื่อมต่อได้",
+checks:["ตรวจ Device Manager ว่าไม่มีเครื่องหมายเตือน","ทดสอบ Wi-Fi และ LAN"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"W04",title:"ปัญหาเครือข่ายหลังอัปเดต Windows",cat:"windows",icon:"⬆️",keywords:"หลังอัปเดต windows เน็ตไม่ได้",
+symptoms:"หลังอัปเดต Windows แล้วเน็ตหายหรือใช้ไม่ได้",
+causes:["ไดรเวอร์อัปเดตแล้วมีปัญหา","การตั้งค่าเครือข่ายเปลี่ยน","VPN/Firewall รบกวน"],
+steps:["รีสตาร์ตคอมพิวเตอร์","รัน Network troubleshooter","ตรวจและอัปเดตไดรเวอร์เครือข่ายจากเว็บผู้ผลิต","ตั้ง IP และ DNS เป็น Automatic","รันคำสั่ง netsh winsock reset, netsh int ip reset, ipconfig /release, ipconfig /renew, ipconfig /flushdns แล้วรีสตาร์ต"],
+result:"เครือข่ายกลับมาใช้งานได้หลังอัปเดต",
+checks:["ตรวจ Windows Update และไดรเวอร์ล่าสุด","ทดสอบ Wi-Fi และ LAN"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"B01",title:"เบราว์เซอร์ไม่สามารถเปิดหน้าเว็บได้",cat:"browser",icon:"🖥️",keywords:"เบราว์เซอร์ เปิดเว็บไม่ได้ chrome",
+symptoms:"เบราว์เซอร์แสดงข้อผิดพลาดหรือหน้าเว็บโหลดไม่เสร็จ",
+causes:["ไม่มีอินเทอร์เน็ต","DNS/Proxy ผิด","ส่วนขยายหรือแคชมีปัญหา","เว็บไซต์ปลายทางล่ม"],
+steps:["ตรวจการเชื่อมต่ออินเทอร์เน็ต","ทดสอบด้วยเบราว์เซอร์อื่น","ปิด VPN และ Proxy ชั่วคราว","ล้างแคชและคุกกี้ของเบราว์เซอร์","ปิดส่วนขยายที่น่าสงสัยแล้วทดสอบใหม่"],
+result:"เปิดหน้าเว็บได้ตามปกติ",
+checks:["ทดสอบเว็บไซต์หลายเว็บ","ตรวจข้อความผิดพลาดในเบราว์เซอร์"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"],["Google Chrome Help: ข้อความผิดพลาดทั่วไป","https://support.google.com/chrome/answer/95669?hl=th"]]},
+
+{id:"B02",title:"การตั้งค่าวันที่และเวลาทำให้เกิดข้อผิดพลาดใบรับรอง",cat:"browser",icon:"🕒",keywords:"certificate ใบรับรอง วันเวลา ผิด",
+symptoms:"เบราว์เซอร์แจ้งเตือนใบรับรองไม่ถูกต้องหรือความปลอดภัย",
+causes:["วัน-เวลาหรือเขตเวลาผิด","ใบรับรองของเว็บไซต์มีปัญหา","นาฬิกาของเครื่องเบี่ยง"],
+steps:["เปิด Settings > Time & language > Date & time","เปิด Set time automatically และ Set time zone automatically","ซิงก์เวลาใหม่","รีสตาร์ตเบราว์เซอร์","หากยังเตือน ให้ตรวจว่าเว็บไซต์มีปัญหาใบรับรองหรือไม่"],
+result:"ข้อความใบรับรองผิดพลาดหายไปและเข้าเว็บได้",
+checks:["ตรวจวัน-เวลาและเขตเวลา","ทดสอบเว็บไซต์อื่น"],
+refs:[["Google Chrome Help: ข้อความผิดพลาดทั่วไป","https://support.google.com/chrome/answer/95669?hl=th"]]},
+
+{id:"B03",title:"เบราว์เซอร์โหลดช้าหรือค้าง",cat:"browser",icon:"🐌",keywords:"chrome ช้า ค้าง โหลดช้า",
+symptoms:"เปิดเว็บช้าหรือค้างแม้เน็ตปกติ",
+causes:["แคช/ส่วนขยายมากเกินไป","แท็บหรือส่วนขยายใช้ทรัพยากรสูง","เว็บไซต์ปลายทางช้า"],
+steps:["ปิดแท็บที่ไม่ใช้","ปิดส่วนขยายที่ไม่จำเป็นชั่วคราว","ล้างแคชและคุกกี้","อัปเดตเบราว์เซอร์","ทดสอบโหมดไม่ระบุตัวตนหรือโปรไฟล์ใหม่"],
+result:"เบราว์เซอร์โหลดเร็วขึ้นและไม่ค้าง",
+checks:["ทดสอบเว็บเดียวกันบนเบราว์เซอร์อื่น","ตรวจว่าเกิดเฉพาะเว็บใดเว็บหนึ่งหรือไม่"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"]]},
+
+{id:"V01",title:"VPN ทำให้เชื่อมต่ออินเทอร์เน็ตไม่ได้",cat:"security",icon:"🛡️",keywords:"vpn ไม่ได้ ตัดการเชื่อมต่อ",
+symptoms:"เปิด VPN แล้วเน็ตหายหรือช้ามาก",
+causes:["เซิร์ฟเวอร์ VPN มีปัญหา","การตั้งค่า VPN ผิด","VPN ขัดขวาง DNS หรือเส้นทาง","ซอฟต์แวร์ความปลอดภัยรบกวน"],
+steps:["ปิด VPN ชั่วคราวแล้วทดสอบ","เปลี่ยนเซิร์ฟเวอร์ VPN หรือโปรโตคอล","รัน ipconfig /flushdns","อัปเดตแอป VPN","หากยังไม่ได้ ให้ถอนการติดตั้งและติดตั้งใหม่ตามคำแนะนำผู้ให้บริการ VPN"],
+result:"ใช้ VPN ได้โดยไม่ทำให้เน็ตหาย",
+checks:["ทดสอบก่อนและหลังเปิด VPN","ตรวจสถานะเซิร์ฟเวอร์ VPN"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"V02",title:"ปัญหา Proxy",cat:"security",icon:"🔀",keywords:"proxy พร็อกซี ตั้งค่าผิด",
+symptoms:"เปิดเว็บไม่ได้หรือข้อความผิดพลาดเกี่ยวกับ Proxy",
+causes:["เปิด Proxy โดยไม่ตั้งใจ","ซอฟต์แวร์ตั้ง Proxy ให้","การตั้งค่า Proxy ผิด"],
+steps:["เปิด Settings > Network & internet > Proxy","ปิด “Use a proxy server” หากไม่ได้ตั้งใจใช้","ปิด “Automatically detect settings” ชั่วคราวเพื่อทดสอบ","รีสตาร์ตเบราว์เซอร์","หากใช้ Proxy ขององค์กร ให้ติดต่อผู้ดูแลระบบ"],
+result:"เปิดเว็บได้โดยไม่ถูก Proxy ขัดขวาง",
+checks:["ตรวจการตั้งค่า Proxy ใน Windows และเบราว์เซอร์","ทดสอบเว็บไซต์หลายเว็บ"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"V03",title:"Firewall ขัดขวางการเชื่อมต่อ",cat:"security",icon:"🧱",keywords:"firewall ไฟร์วอลล์ บล็อก",
+symptoms:"บางแอปหรือเว็บใช้ไม่ได้แม้เน็ตปกติ",
+causes:["Firewall บล็อกแอปหรือพอร์ต","โปรแกรมความปลอดภัยตั้งค่าเข้มเกินไป","การตั้งค่าองค์กร"],
+steps:["ระบุแอปหรือเว็บที่มีปัญหา","เปิด Windows Security > Firewall & network protection","ตรวจการอนุญาตแอปผ่านไฟร์วอลล์","อนุญาตเฉพาะแอปที่จำเป็นและเชื่อถือได้","ห้ามปิด Firewall ทั้งหมด หากไม่จำเป็น เพราะอาจเสี่ยงต่อความปลอดภัย"],
+result:"แอปหรือเว็บที่ต้องการใช้งานได้โดยยังคงความปลอดภัย",
+checks:["ทดสอบก่อนและหลังปรับการอนุญาต","ตรวจข้อความแจ้งเตือนของ Firewall"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"V04",title:"ซอฟต์แวร์ความปลอดภัยรบกวนการเชื่อมต่อ",cat:"security",icon:"🛡️",keywords:"antivirus ซอฟต์แวร์ความปลอดภัย รบกวน",
+symptoms:"เน็ตหายหรือช้าหลังติดตั้งโปรแกรมความปลอดภัย",
+causes:["ซอฟต์แวร์ความปลอดภัยบล็อกการเชื่อมต่อ","การตั้งค่าเข้มเกินไป","ซอฟต์แวร์ชนกัน"],
+steps:["ระบุโปรแกรมที่ติดตั้งใหม่","ปิดการป้องกันชั่วคราวเฉพาะเมื่อจำเป็นและเข้าใจความเสี่ยง","อัปเดตโปรแกรมความปลอดภัย","ตรวจการอนุญาตแอปในโปรแกรมความปลอดภัย","หากยังมีปัญหา ให้ติดต่อผู้ดูแลระบบหรือผู้สนับสนุนของโปรแกรม"],
+result:"การเชื่อมต่อกลับมาปกติโดยยังคงความปลอดภัย",
+checks:["ทดสอบก่อนและหลังปรับการตั้งค่า","ตรวจข้อความแจ้งเตือนของโปรแกรม"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"O01",title:"การเชื่อมต่อถูกจำกัดด้วยเครือข่ายองค์กรหรือสถานศึกษา",cat:"other",icon:"🏫",keywords:"องค์กร โรงเรียน จำกัด บล็อก",
+symptoms:"เข้าบางเว็บหรือแอปไม่ได้ในเครือข่ายองค์กร",
+causes:["นโยบายขององค์กรบล็อก","ต้องยืนยันตัวตน","Firewall/Proxy ขององค์กร"],
+steps:["ตรวจว่าต้องล็อกอินด้วยบัญชีองค์กรหรือไม่","ติดต่อฝ่ายไอทีเพื่อขอสิทธิ์หรือแจ้งปัญหา","ห้ามพยายามหลีกเลี่ยงนโยบายขององค์กร","ทดสอบบนเครือข่ายอื่นเพื่อยืนยันว่าเป็นการจำกัดขององค์กร","ปฏิบัติตามคำแนะนำของผู้ดูแลระบบ"],
+result:"ใช้งานได้ตามสิทธิ์ที่องค์กรกำหนด",
+checks:["ตรวจข้อความแจ้งเตือนหรือหน้าล็อกอิน","ติดต่อฝ่ายไอทีหากจำเป็น"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"O02",title:"เครือข่ายสาธารณะต้องเข้าสู่ระบบก่อนใช้งาน",cat:"other",icon:"📶",keywords:"hotspot สาธารณะ ล็อกอิน captive portal",
+symptoms:"เชื่อม Wi-Fi ได้แต่ต้องกดยอมรับหรือล็อกอินก่อน",
+causes:["เครือข่ายต้องยืนยันตัวตน","หน้า Captive portal ยังไม่เปิด","การเชื่อมต่อถูกจำกัด"],
+steps:["เปิดเบราว์เซอร์แล้วเข้าเว็บธรรมดา เช่น http://example.com เพื่อให้หน้าล็อกอินปรากฏ","ยอมรับเงื่อนไขหรือล็อกอินตามที่เครือข่ายกำหนด","หากไม่ขึ้น ให้ลืมเครือข่ายแล้วเชื่อมต่อใหม่","ปิด VPN ชั่วคราว","หากยังไม่ได้ ให้ติดต่อผู้ดูแลสถานที่"],
+result:"ใช้อินเทอร์เน็ตผ่านเครือข่ายสาธารณะได้หลังยืนยันตัวตน",
+checks:["ตรวจว่าหน้าล็อกอินเปิดหรือไม่","ทดสอบจากอุปกรณ์อื่น"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"]]},
+
+{id:"O03",title:"ปัญหาการเชื่อมต่อผ่าน Hotspot",cat:"other",icon:"📱",keywords:"hotspot มือถือ แชร์เน็ต",
+symptoms:"เชื่อม Hotspot ได้แต่ใช้เน็ตไม่ได้หรือช้า",
+causes:["ข้อมูลมือถือหมด","สัญญาณมือถืออ่อน","จำนวนอุปกรณ์เกิน","การตั้งค่า Hotspot ผิด"],
+steps:["ตรวจว่าโทรศัพท์ใช้ข้อมูลมือถือได้จริง","เปิด/ปิด Hotspot ใหม่","ลดจำนวนอุปกรณ์ที่เชื่อมต่อ","ตั้งรหัสผ่านและชื่อ Hotspot ให้ถูกต้อง","รีสตาร์ตโทรศัพท์และคอมพิวเตอร์"],
+result:"ใช้อินเทอร์เน็ตผ่าน Hotspot ได้",
+checks:["ทดสอบจากอุปกรณ์อื่น","ตรวจสถานะข้อมูลมือถือ"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่อเครือข่ายใน Windows","https://support.microsoft.com/th-th/windows/fix-network-connection-issues-in-windows-166a28c4-14c1-bdb1-473c-09c1571455d8"]]},
+
+{id:"O04",title:"การตั้งค่าเครือข่ายผิดพลาดหลังเปลี่ยนอุปกรณ์หรือย้ายที่ใช้งาน",cat:"other",icon:"📦",keywords:"ย้ายที่ เปลี่ยนอุปกรณ์ ตั้งค่า",
+symptoms:"หลังย้ายที่หรือเปลี่ยนอุปกรณ์ ใช้เน็ตไม่ได้",
+causes:["ชื่อ Wi-Fi/รหัสผ่านเปลี่ยน","IP/DNS เดิมค้าง","การตั้งค่าเราเตอร์ใหม่ยังไม่สมบูรณ์"],
+steps:["ลืมเครือข่ายเดิมแล้วเชื่อมต่อใหม่","ตั้ง IP และ DNS เป็น Automatic (DHCP)","รัน ipconfig /release, ipconfig /renew และ ipconfig /flushdns","รีสตาร์ตคอมพิวเตอร์และเราเตอร์","ตรวจการตั้งค่าเครือข่ายใหม่จากผู้ดูแล"],
+result:"ใช้เครือข่ายใหม่ได้ตามปกติ",
+checks:["ตรวจ IP ใหม่ด้วย ipconfig","ทดสอบเว็บไซต์หลายเว็บ"],
+refs:[["Microsoft Support: แก้ไขปัญหาการเชื่อมต่ออีเทอร์เน็ตใน Windows","https://support.microsoft.com/th-th/windows/fix-ethernet-connection-problems-in-windows-2311254e-cab8-42d6-90f3-cb0b9f63645f"]]},
+
+{id:"O05",title:"คอมพิวเตอร์เชื่อมต่อเครือข่ายได้แต่บางบริการใช้งานไม่ได้",cat:"other",icon:"🧩",keywords:"บางบริการ ไม่ได้ เชื่อมต่อได้",
+symptoms:"เว็บทั่วไปใช้ได้ แต่บางแอปหรือบริการไม่ได้",
+causes:["บริการปลายทางมีปัญหา","Firewall/Proxy บล็อก","VPN เปลี่ยนเส้นทาง","DNS เฉพาะโดเมน"],
+steps:["ปิด VPN และ Proxy ชั่วคราว","รัน ipconfig /flushdns","ตรวจสถานะบริการของผู้ให้บริการนั้น","อัปเดตแอปและรีสตาร์ตคอมพิวเตอร์","ตรวจ Firewall ให้อนุญาตแอปที่จำเป็นเฉพาะเมื่อแน่ใจว่าปลอดภัย"],
+result:"บริการที่มีปัญหาใช้งานได้ตามปกติ",
+checks:["ทดสอบบริการเดียวกันจากอุปกรณ์อื่น","ตรวจข้อความผิดพลาดของแอป"],
+refs:[["Google Chrome Help: แก้ไขข้อผิดพลาดการเชื่อมต่อและการโหลด","https://support.google.com/chrome/answer/6098869?hl=th"]]
+}
+];
+
+let state={page:"home",cat:null,selected:null,query:""};
+const app=document.getElementById("app");
+const searchBox=document.getElementById("searchBox");
+
+function nav(page,cat=null,selected=null){state={page,cat,selected,query:state.query};render();window.scrollTo({top:0,behavior:"smooth"});}
+function setCat(id){state.page="category";state.cat=id;state.selected=null;render();}
+function doSearch(){state.page="search";state.query=searchBox.value.trim();state.selected=null;render();}
+function openProblem(id){state.page="detail";state.selected=id;render();}
+function googleSearch(q){const url="https://www.google.com/search?q="+encodeURIComponent(q);window.open(url,"_blank","noopener");}
+
+function card(p){return `<div class="card"><div class="pic" role="img" aria-label="ภาพประกอบ ${p.title}">${p.icon}</div><span class="tag">${catName(p.cat)}</span><h3>${p.title}</h3><p>${p.symptoms}</p><button class="btn" onclick="openProblem('${p.id}')">ดูวิธีแก้ไข</button></div>`;}
+function catName(id){const c=categories.find(x=>x.id===id);return c?c.name:"อื่น ๆ";}
+function searchAll(q){q=q.toLowerCase();return P.filter(p=>[p.title,p.keywords,p.symptoms,p.causes.join(" "),p.steps.join(" "),catName(p.cat)].join(" ").toLowerCase().includes(q));}
+
+function render(){
+document.querySelectorAll(".sidebar button").forEach(b=>b.classList.toggle("active",b.dataset.page===state.page));
+if(state.page==="home"){app.innerHTML=`
+<div class="hero"><h1>ช่วยแก้เน็ต</h1><p>คู่มือแก้ปัญหาการเชื่อมต่ออินเทอร์เน็ตบนคอมพิวเตอร์ สำหรับนักเรียน นักศึกษา และบุคคลทั่วไป</p>
+<div class="banner"><div class="icon" role="img" aria-label="ภาพประกอบคอมพิวเตอร์และอินเทอร์เน็ต">💻📡</div><div><b>แก้ปัญหาเบื้องต้นได้ด้วยตัวเอง</b><br>ค้นหาอาการ สาเหตุ และวิธีแก้ไขทีละขั้นตอน</div></div></div>
+<h2 class="section-title">ปัญหาที่พบบ่อย</h2>
+<div class="grid">${["W01","N01","S01","D01","L01","R01"].map(id=>card(P.find(p=>p.id===id))).join("")}</div>
+<h2 class="section-title">หมวดหมู่ปัญหา</h2>
+<div class="grid">${categories.map(c=>`<div class="card"><div class="pic">${c.icon}</div><h3>${c.name}</h3><p>คลิกเพื่อดูปัญหาในหมวดนี้</p><button class="btn" onclick="setCat('${c.id}')">เข้าชม</button></div>`).join("")}</div>`;}
+else if(state.page==="categories"){app.innerHTML=`<h2 class="section-title">หมวดหมู่ปัญหา</h2><div class="grid">${categories.map(c=>`<div class="card"><div class="pic">${c.icon}</div><h3>${c.name}</h3><p>ปัญหา ${P.filter(x=>x.cat===c.id).length} รายการ</p><button class="btn" onclick="setCat('${c.id}')">เข้าชม</button></div>`).join("")}</div>`;}
+else if(state.page==="category"){const list=P.filter(p=>p.cat===state.cat);app.innerHTML=`<button class="btn secondary back" onclick="nav('categories')">← ย้อนกลับ</button><h2 class="section-title">${catName(state.cat)}</h2><div class="grid">${list.map(card).join("")}</div>`;}
+else if(state.page==="search"){const r=searchAll(state.query);app.innerHTML=`<button class="btn secondary back" onclick="nav('home')">← ย้อนกลับ</button><h2 class="section-title">ผลการค้นหา: “${state.query}”</h2>${r.length?`<div class="grid">${r.map(card).join("")}</div>`:`<div class="panel empty">ไม่พบข้อมูลที่ตรงกับคำค้นหา<br>ลองใช้คำค้นอื่น เช่น “Wi-Fi”, “DNS”, “สาย LAN”, “VPN”</div>`}<button class="btn" onclick="googleSearch('${state.query.replace(/'/g,"")}')">ค้นหาข้อมูลเพิ่มเติมจาก Google</button><p class="note">ผลการค้นหาจาก Google เป็นข้อมูลจากแหล่งภายนอก ไม่ใช่ข้อมูลที่จัดเก็บในเว็บไซต์นี้โดยตรง</p>`;}
+else if(state.page==="guide"){app.innerHTML=`<h2 class="section-title">วิธีแก้ไขเบื้องต้น</h2><div class="panel"><ol><li>ตรวจว่าอุปกรณ์อื่นใช้อินเทอร์เน็ตได้หรือไม่</li><li>ตรวจสาย LAN สัญญาณ Wi-Fi และไฟสถานะเราเตอร์</li><li>ปิด-เปิด Wi-Fi หรือถอดเสียบสาย LAN ใหม่</li><li>รีสตาร์ตคอมพิวเตอร์หรือเราเตอร์เมื่อทำได้อย่างปลอดภัย</li><li>รัน Network troubleshooter ของ Windows</li><li>ตรวจ IP, DNS, Proxy และ VPN</li><li>ใช้คำสั่ง ipconfig, ping, nslookup เพื่อวินิจฉัย</li><li>หากยังไม่ได้ ให้ติดต่อผู้ดูแลระบบหรือผู้ให้บริการ</li></ol><p class="note">ห้ามรีเซ็ตเราเตอร์เป็นค่าโรงงานหรือปิดระบบป้องกันความปลอดภัยโดยไม่จำเป็น</p></div>`;}
+else if(state.page==="about"){app.innerHTML=`<h2 class="section-title">เกี่ยวกับเว็บไซต์</h2><div class="panel"><p>เว็บไซต์นี้รวบรวมปัญหาการเชื่อมต่ออินเทอร์เน็ตบนคอมพิวเตอร์ ${P.length} ปัญหา พร้อมอาการ สาเหตุ วิธีแก้ไข และแหล่งอ้างอิง</p><p>ข้อมูลทางเทคนิคอ้างอิงจาก Microsoft Support, Microsoft Learn, Google Chrome Help และ Cloudflare Learning Center</p></div>`;}
+else if(state.page==="detail"){const p=P.find(x=>x.id===state.selected);app.innerHTML=`<button class="btn secondary back" onclick="history.back()">← ย้อนกลับ</button><div class="detail"><h2>${p.icon} ${p.title}</h2><span class="tag">${catName(p.cat)}</span><h3>อาการที่พบ</h3><p>${p.symptoms}</p><h3>สาเหตุที่เป็นไปได้</h3><ul>${p.causes.map(c=>`<li>${c}</li>`).join("")}</ul><h3>วิธีแก้ไขทีละขั้นตอน</h3><ol>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ol><h3>ผลลัพธ์ที่ควรได้รับ</h3><p>${p.result}</p><h3>วิธีตรวจสอบเพิ่มเติม</h3><ul>${p.checks.map(c=>`<li>${c}</li>`).join("")}</ul><h3>แหล่งอ้างอิง</h3><div class="ref"><ul>${p.refs.map(r=>`<li><a href="${r[1]}" target="_blank" rel="noopener">${r[0]}</a></li>`).join("")}</ul></div><button class="btn" onclick="googleSearch('${p.title.replace(/'/g,"")}')">ค้นหาข้อมูลเพิ่มเติมจาก Google</button><p class="note">ผลการค้นหาจาก Google เป็นข้อมูลจากแหล่งภายนอก ไม่ใช่ข้อมูลที่จัดเก็บในเว็บไซต์นี้โดยตรง</p></div>`;}
+}
+
+searchBox.addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
+window.addEventListener("popstate",()=>{render();});
+render();
+</script>
+</body>
+</html>
